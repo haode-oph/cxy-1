@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>学生打卡签到系统 - 公开访问版</title>
-    <!-- 使用CDN确保所有设备都能加载 -->
+    <title>学生打卡签到系统</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <!-- Chart.js 用于统计图表 -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* 内联所有CSS确保立即加载 */
+        /* ===== 全局样式 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
         :root {
             --primary-color: #4361ee;
             --secondary-color: #3a0ca3;
@@ -24,13 +27,6 @@
             --transition: all 0.3s ease;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-        }
-
         body {
             background: #f8f9fa;
             color: var(--dark-color);
@@ -39,90 +35,65 @@
             overflow-x: hidden;
         }
 
-        /* 页面容器 */
+        /* ===== 页面容器 ===== */
         .page {
             display: none;
             min-height: 100vh;
-            padding-top: 70px;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
         .page.active {
             display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        /* 导航栏 */
+        /* ===== 导航栏 ===== */
         .navbar {
             background: white;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 0 20px;
+            padding: 0 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             height: 70px;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
         }
 
         .nav-brand {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             font-size: 20px;
             font-weight: 700;
             color: var(--primary-color);
-            text-decoration: none;
         }
 
-        .nav-brand:hover {
-            color: var(--secondary-color);
+        .nav-brand i {
+            font-size: 24px;
         }
 
         .nav-links {
             display: flex;
-            gap: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-                position: absolute;
-                top: 70px;
-                left: 0;
-                right: 0;
-                background: white;
-                flex-direction: column;
-                padding: 20px;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            }
-            
-            .nav-links.active {
-                display: flex;
-            }
-            
-            .nav-toggle {
-                display: block;
-                background: none;
-                border: none;
-                font-size: 24px;
-                color: var(--dark-color);
-            }
+            gap: 25px;
         }
 
         .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             color: #6c757d;
             text-decoration: none;
             padding: 10px 0;
             border-bottom: 3px solid transparent;
             transition: var(--transition);
+            cursor: pointer;
         }
 
         .nav-link:hover,
@@ -131,23 +102,25 @@
             border-bottom-color: var(--primary-color);
         }
 
-        .nav-toggle {
-            display: none;
+        .nav-actions {
+            display: flex;
+            gap: 15px;
         }
 
-        /* 按钮样式 */
+        /* ===== 按钮样式 ===== */
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
-            text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
         }
 
         .btn-primary {
@@ -158,11 +131,6 @@
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
-        }
-
-        .btn-success {
-            background: linear-gradient(45deg, #4cc9f0, #4361ee);
-            color: white;
         }
 
         .btn-outline {
@@ -176,37 +144,63 @@
             color: white;
         }
 
-        .btn-lg {
-            padding: 15px 30px;
-            font-size: 18px;
+        .btn-success {
+            background: linear-gradient(45deg, #4cc9f0, #4361ee);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #f72585, #f8961e);
+            color: white;
         }
 
         .btn-block {
             width: 100%;
         }
 
-        /* 英雄区域 */
+        .btn-lg {
+            padding: 16px 32px;
+            font-size: 18px;
+        }
+
+        .btn-link {
+            background: transparent;
+            color: var(--primary-color);
+            padding: 8px 0;
+            text-decoration: none;
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== 首页样式 ===== */
+        #homePage {
+            padding-top: 70px;
+        }
+
         .hero-section {
+            padding: 80px 0;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 80px 20px;
-            text-align: center;
-            min-height: calc(100vh - 70px);
+            position: relative;
+            overflow: hidden;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: space-between;
+            min-height: calc(100vh - 70px);
         }
 
-        .hero-section h1 {
+        .hero-content {
+            max-width: 600px;
+            position: relative;
+            z-index: 2;
+            padding-left: 50px;
+        }
+
+        .hero-content h1 {
             font-size: 48px;
             margin-bottom: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .hero-section h1 {
-                font-size: 36px;
-            }
         }
 
         .hero-subtitle {
@@ -215,95 +209,904 @@
             opacity: 0.9;
         }
 
-        /* 卡片样式 */
-        .card {
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .hero-image {
+            padding-right: 50px;
+        }
+
+        .phone-mockup {
+            width: 300px;
+            height: 600px;
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 20px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .phone-screen {
             background: white;
+            height: 100%;
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        .mockup-content {
+            text-align: center;
+            color: var(--dark-color);
+            padding: 40px 20px;
+        }
+
+        .mockup-content h3 {
+            margin-bottom: 30px;
+            color: var(--primary-color);
+        }
+
+        .mockup-time {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .mockup-date {
+            color: #6c757d;
+            margin-bottom: 40px;
+        }
+
+        .mockup-btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .features-section {
+            padding: 80px 50px;
+            background: white;
+        }
+
+        .section-title {
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--dark-color);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
-            padding: 30px;
-            margin-bottom: 30px;
             transition: var(--transition);
+            cursor: pointer;
+            text-align: center;
+            border: 1px solid #e9ecef;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
 
-        /* 表单样式 */
-        .form-group {
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 24px;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 15px;
+            color: var(--dark-color);
+        }
+
+        .feature-card p {
+            color: #6c757d;
             margin-bottom: 20px;
+        }
+
+        /* ===== 登录页面样式 ===== */
+        #loginPage {
+            padding-top: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 20px;
+        }
+
+        .login-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            min-height: 600px;
+        }
+
+        .login-left {
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-right {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: white;
+        }
+
+        .login-title {
+            font-size: 32px;
+            margin-bottom: 30px;
+            color: var(--dark-color);
+            text-align: center;
+        }
+
+        .login-title i {
+            color: var(--primary-color);
+            margin-right: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .form-control {
+        .form-group input {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: 2px solid #e9ecef;
             border-radius: 8px;
             font-size: 16px;
             transition: var(--transition);
         }
 
-        .form-control:focus {
+        .form-group input:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
         }
 
-        /* 表格样式 */
-        .table {
-            width: 100%;
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        .login-divider {
+            text-align: center;
+            margin: 25px 0;
+            color: #6c757d;
+            position: relative;
+        }
+
+        .login-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e9ecef;
+        }
+
+        .login-divider span {
             background: white;
+            padding: 0 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-features {
+            margin-top: 40px;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-list i {
+            color: #4CAF50;
+        }
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        /* ===== 注册页面样式 ===== */
+        #registerPage {
+            padding-top: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+
+        .register-card {
+            background: white;
+            padding: 50px;
             border-radius: var(--border-radius);
-            overflow: hidden;
             box-shadow: var(--box-shadow);
         }
 
-        .table th {
-            background: #f8f9fa;
+        .register-title {
+            font-size: 32px;
+            margin-bottom: 30px;
+            color: var(--dark-color);
+            text-align: center;
+        }
+
+        .register-title i {
+            color: var(--primary-color);
+            margin-right: 10px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .form-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .agreement {
+            margin-top: 20px;
             padding: 15px;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        .table td {
-            padding: 15px;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .table tr:hover {
             background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
         }
 
-        /* 徽章 */
-        .badge {
-            padding: 5px 12px;
+        /* ===== 仪表板样式 ===== */
+        #dashboardPage {
+            padding-top: 70px;
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 40px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .welcome-content h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-content p {
+            opacity: 0.9;
+            font-size: 18px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 25px;
+            border-radius: 8px;
+        }
+
+        .user-avatar {
+            font-size: 40px;
+            color: white;
+        }
+
+        .user-details h3 {
+            margin-bottom: 5px;
+        }
+
+        .user-details p {
+            font-size: 14px;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h3 {
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        .sign-card .card-body {
+            text-align: center;
+        }
+
+        .sign-time {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 20px 0;
+        }
+
+        .sign-date {
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+
+        .sign-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .info-item i {
+            font-size: 24px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 25px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 24px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--dark-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .recent-section {
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .recent-section h2 {
+            margin-bottom: 20px;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .records-list {
+            margin-bottom: 25px;
+        }
+
+        .record-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 2fr;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            align-items: center;
+        }
+
+        .record-item:last-child {
+            border-bottom: none;
+        }
+
+        .record-status {
+            padding: 5px 15px;
             border-radius: 20px;
             font-size: 14px;
             font-weight: 600;
+            text-align: center;
         }
 
-        .badge-success {
+        .status-success {
             background: #d4edda;
             color: #155724;
         }
 
-        .badge-warning {
+        .status-warning {
             background: #fff3cd;
             color: #856404;
         }
 
-        .badge-danger {
+        .status-danger {
             background: #f8d7da;
             color: #721c24;
         }
 
-        /* 模态框 */
+        /* ===== 签到记录页面样式 ===== */
+        #attendancePage {
+            padding-top: 70px;
+            min-height: 100vh;
+        }
+
+        .attendance-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-section {
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 20px;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .data-table th {
+            padding: 20px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid #e9ecef;
+            transition: var(--transition);
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .data-table td {
+            padding: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        /* ===== 统计页面样式 ===== */
+        #statisticsPage {
+            padding-top: 70px;
+            min-height: 100vh;
+        }
+
+        .statistics-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .chart-card h3 {
+            margin-bottom: 20px;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            text-align: center;
+        }
+
+        .summary-icon {
+            font-size: 40px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .summary-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--dark-color);
+            margin-bottom: 5px;
+        }
+
+        .summary-label {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .comparison-section {
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-top: 30px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        /* ===== 个人中心样式 ===== */
+        #profilePage {
+            padding-top: 70px;
+            min-height: 100vh;
+        }
+
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 40px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: var(--primary-color);
+            position: relative;
+        }
+
+        .avatar-edit {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--primary-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .profile-info h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .profile-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .info-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .settings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .setting-info h4 {
+            margin-bottom: 5px;
+            color: var(--dark-color);
+        }
+
+        .setting-info p {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        /* ===== 模态框样式 ===== */
         .modal {
             display: none;
             position: fixed;
@@ -323,654 +1126,924 @@
 
         .modal-content {
             background: white;
-            padding: 30px;
             border-radius: var(--border-radius);
+            padding: 30px;
             max-width: 500px;
             width: 90%;
+            position: relative;
         }
 
-        /* 工具类 */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
 
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        /* ===== 响应式设计 ===== */
+        @media (max-width: 1024px) {
+            .hero-section {
+                flex-direction: column;
+                text-align: center;
+                padding: 40px 20px;
+            }
+            
+            .hero-content {
+                padding-left: 0;
+            }
+            
+            .hero-image {
+                padding-right: 0;
+                margin-top: 40px;
+            }
+            
+            .login-wrapper {
+                grid-template-columns: 1fr;
+            }
+            
+            .login-right {
+                display: none;
+            }
+            
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 15px;
+                flex-wrap: wrap;
+                height: auto;
+                padding: 10px;
+            }
+            
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                margin-top: 10px;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .hero-content h1 {
+                font-size: 36px;
+            }
+            
+            .phone-mockup {
+                width: 250px;
+                height: 500px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .welcome-banner {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sign-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .record-item {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .data-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== 动画效果 ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .animate-slideIn {
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* ===== 工具类 ===== */
         .text-center { text-align: center; }
+        .text-right { text-align: right; }
         .mt-1 { margin-top: 10px; }
         .mt-2 { margin-top: 20px; }
         .mt-3 { margin-top: 30px; }
         .mb-1 { margin-bottom: 10px; }
         .mb-2 { margin-bottom: 20px; }
         .mb-3 { margin-bottom: 30px; }
+        .ml-1 { margin-left: 10px; }
+        .mr-1 { margin-right: 10px; }
+        .p-1 { padding: 10px; }
+        .p-2 { padding: 20px; }
+        .p-3 { padding: 30px; }
         .d-flex { display: flex; }
+        .d-block { display: block; }
+        .d-none { display: none; }
         .flex-column { flex-direction: column; }
+        .justify-between { justify-content: space-between; }
         .align-center { align-items: center; }
-        .justify-center { justify-content: center; }
         .w-100 { width: 100%; }
+        .h-100 { height: 100%; }
 
-        /* 响应式网格 */
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            margin: -15px;
+        /* ===== 滚动条样式 ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
 
-        .col {
-            flex: 1;
-            padding: 15px;
-            min-width: 300px;
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
         }
 
-        /* 加载动画 */
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary-color);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* 移动端优化 */
-        @media (max-width: 576px) {
-            .container {
-                padding: 0 15px;
-            }
-            
-            .card {
-                padding: 20px;
-            }
-            
-            .btn {
-                padding: 8px 16px;
-                font-size: 14px;
-            }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
         }
     </style>
 </head>
 <body>
     <!-- 导航栏 -->
     <nav class="navbar">
-        <a href="#" class="nav-brand" onclick="showPage('home')">
+        <div class="nav-brand">
             <i class="fas fa-calendar-check"></i>
-            学生签到系统
-        </a>
-        
-        <div class="nav-links" id="navLinks">
-            <a href="#" class="nav-link active" onclick="showPage('home')">
+            <span>学生签到系统</span>
+        </div>
+        <div class="nav-links">
+            <a class="nav-link active" onclick="showPage('homePage')">
                 <i class="fas fa-home"></i> 首页
             </a>
-            <a href="#" class="nav-link" onclick="showPage('dashboard')">
+            <a class="nav-link" onclick="showPage('dashboardPage')">
                 <i class="fas fa-tachometer-alt"></i> 仪表板
             </a>
-            <a href="#" class="nav-link" onclick="showPage('attendance')">
+            <a class="nav-link" onclick="showPage('attendancePage')">
                 <i class="fas fa-history"></i> 签到记录
             </a>
-            <a href="#" class="nav-link" onclick="showPage('statistics')">
+            <a class="nav-link" onclick="showPage('statisticsPage')">
                 <i class="fas fa-chart-bar"></i> 数据统计
             </a>
-            <a href="#" class="nav-link" onclick="showPage('profile')">
+            <a class="nav-link" onclick="showPage('profilePage')">
                 <i class="fas fa-user"></i> 个人中心
             </a>
         </div>
-        
-        <button class="nav-toggle" onclick="toggleMenu()">
-            <i class="fas fa-bars"></i>
-        </button>
+        <div class="nav-actions">
+            <button class="btn btn-outline" onclick="showPage('loginPage')">
+                <i class="fas fa-sign-in-alt"></i> 登录
+            </button>
+            <button class="btn btn-primary" onclick="showPage('registerPage')">
+                <i class="fas fa-user-plus"></i> 注册
+            </button>
+        </div>
     </nav>
 
     <!-- 首页 -->
-    <div id="home" class="page active">
+    <div id="homePage" class="page active">
         <div class="hero-section">
-            <h1>学生打卡签到系统</h1>
-            <p class="hero-subtitle">随时随地，一键签到 • 数据安全，统计智能</p>
-            
-            <div class="d-flex flex-column align-center" style="gap: 20px;">
-                <button class="btn btn-primary btn-lg" onclick="showPage('dashboard')">
-                    <i class="fas fa-play-circle"></i> 立即体验
-                </button>
-                
-                <div class="d-flex" style="gap: 15px;">
-                    <button class="btn btn-outline" onclick="showPage('login')">
+            <div class="hero-content">
+                <h1>智能打卡签到系统</h1>
+                <p class="hero-subtitle">随时随地，一键签到 • 数据安全，统计智能</p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary btn-lg" onclick="showPage('dashboardPage')">
+                        <i class="fas fa-play-circle"></i> 立即体验
+                    </button>
+                    <button class="btn btn-outline btn-lg" onclick="showPage('loginPage')">
                         <i class="fas fa-sign-in-alt"></i> 用户登录
                     </button>
-                    <button class="btn btn-outline" onclick="showPage('register')">
-                        <i class="fas fa-user-plus"></i> 用户注册
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="phone-mockup">
+                    <div class="phone-screen">
+                        <div class="mockup-content">
+                            <h3><i class="fas fa-calendar-check"></i> 今日签到</h3>
+                            <div class="mockup-time">08:15</div>
+                            <div class="mockup-date">2024-12-17</div>
+                            <button class="mockup-btn" onclick="showPage('dashboardPage')">
+                                <i class="fas fa-fingerprint"></i> 立即签到
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="features-section">
+            <h2 class="section-title">核心功能</h2>
+            <div class="features-grid">
+                <div class="feature-card" onclick="showPage('dashboardPage')">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>一键签到</h3>
+                    <p>支持多种签到方式，快速完成考勤</p>
+                    <button class="btn btn-link">
+                        立即体验 <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                
+                <div class="feature-card" onclick="showPage('attendancePage')">
+                    <div class="feature-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>记录查询</h3>
+                    <p>查看历史签到记录，支持筛选导出</p>
+                    <button class="btn btn-link">
+                        查看记录 <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                
+                <div class="feature-card" onclick="showPage('statisticsPage')">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h3>数据统计</h3>
+                    <p>可视化数据报表，实时分析签到情况</p>
+                    <button class="btn btn-link">
+                        查看统计 <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                
+                <div class="feature-card" onclick="showPage('profilePage')">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3>安全管理</h3>
+                    <p>HTTPS加密传输，多重安全验证机制</p>
+                    <button class="btn btn-link">
+                        安全设置 <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
             </div>
-            
-            <!-- 系统状态显示 -->
-            <div class="card mt-3" style="max-width: 600px; background: rgba(255,255,255,0.1);">
-                <div class="text-center">
-                    <h4><i class="fas fa-info-circle"></i> 系统信息</h4>
-                    <p>这是一个完全在线的签到系统，无需安装，在任何设备上都能使用</p>
-                    <small>当前用户：<span id="demoUser">演示用户</span></small>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 功能特性 -->
-        <div class="container mt-3 mb-3">
-            <h2 class="text-center mb-3">核心功能</h2>
-            <div class="row">
-                <div class="col">
-                    <div class="card text-center">
-                        <div style="font-size: 40px; color: var(--primary-color); margin-bottom: 15px;">
-                            <i class="fas fa-mobile-alt"></i>
-                        </div>
-                        <h4>一键签到</h4>
-                        <p>支持多种签到方式，快速完成考勤</p>
-                        <button class="btn btn-outline" onclick="showPage('dashboard')">
-                            立即体验
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="col">
-                    <div class="card text-center">
-                        <div style="font-size: 40px; color: var(--primary-color); margin-bottom: 15px;">
-                            <i class="fas fa-history"></i>
-                        </div>
-                        <h4>记录查询</h4>
-                        <p>查看历史签到记录，支持筛选导出</p>
-                        <button class="btn btn-outline" onclick="showPage('attendance')">
-                            查看记录
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="col">
-                    <div class="card text-center">
-                        <div style="font-size: 40px; color: var(--primary-color); margin-bottom: 15px;">
-                            <i class="fas fa-chart-pie"></i>
-                        </div>
-                        <h4>数据统计</h4>
-                        <p>可视化数据报表，实时分析签到情况</p>
-                        <button class="btn btn-outline" onclick="showPage('statistics')">
-                            查看统计
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </section>
     </div>
 
     <!-- 登录页面 -->
-    <div id="login" class="page">
-        <div class="container" style="max-width: 500px; padding-top: 50px;">
-            <div class="card">
-                <h2 class="text-center mb-3">
-                    <i class="fas fa-sign-in-alt"></i> 用户登录
-                </h2>
-                
-                <div class="form-group">
-                    <label for="loginUsername">用户名/学号</label>
-                    <input type="text" id="loginUsername" class="form-control" 
-                           placeholder="请输入用户名或学号" value="demo_user">
+    <div id="loginPage" class="page">
+        <div class="login-container">
+            <div class="login-wrapper">
+                <div class="login-left">
+                    <h2 class="login-title">
+                        <i class="fas fa-sign-in-alt"></i> 用户登录
+                    </h2>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="loginStudentId">
+                                <i class="fas fa-id-card"></i> 学号/工号
+                            </label>
+                            <input type="text" id="loginStudentId" placeholder="请输入学号或工号" value="2424070299">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="loginPassword">
+                                <i class="fas fa-lock"></i> 密码
+                            </label>
+                            <input type="password" id="loginPassword" placeholder="请输入密码" value="123456">
+                        </div>
+                        
+                        <div class="form-options">
+                            <label class="checkbox">
+                                <input type="checkbox" id="rememberLogin" checked>
+                                <span>记住登录状态</span>
+                            </label>
+                            <a class="forgot-link" onclick="alert('请联系管理员重置密码')">
+                                忘记密码？
+                            </a>
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary btn-block" onclick="handleLogin()">
+                            <i class="fas fa-sign-in-alt"></i> 登录系统
+                        </button>
+                        
+                        <div class="login-divider">
+                            <span>还没有账号？</span>
+                        </div>
+                        
+                        <button type="button" class="btn btn-outline btn-block" onclick="showPage('registerPage')">
+                            <i class="fas fa-user-plus"></i> 注册新账号
+                        </button>
+                    </form>
+                    
+                    <div class="login-features mt-3">
+                        <div class="security-badge">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>HTTPS安全连接 · 数据加密传输</span>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="loginPassword">密码</label>
-                    <input type="password" id="loginPassword" class="form-control" 
-                           placeholder="请输入密码" value="123456">
-                </div>
-                
-                <div class="d-flex justify-between mb-3">
-                    <label style="display: flex; align-items: center; gap: 5px;">
-                        <input type="checkbox" checked>
-                        <span>记住登录状态</span>
-                    </label>
-                    <a href="#" onclick="alert('请联系管理员重置密码')">
-                        忘记密码？
-                    </a>
-                </div>
-                
-                <button class="btn btn-primary btn-block" onclick="performLogin()">
-                    <i class="fas fa-sign-in-alt"></i> 登录系统
-                </button>
-                
-                <div class="text-center mt-3">
-                    <p>还没有账号？ <a href="#" onclick="showPage('register')">立即注册</a></p>
-                </div>
-                
-                <!-- 测试账号提示 -->
-                <div class="mt-3" style="background: #e8f5e9; padding: 15px; border-radius: 8px;">
-                    <h5><i class="fas fa-info-circle"></i> 测试账号</h5>
-                    <p>用户名：demo_user</p>
-                    <p>密码：123456</p>
-                    <small>直接点击登录即可体验系统</small>
+                <div class="login-right">
+                    <h2>系统特色</h2>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> 支持多平台访问</li>
+                        <li><i class="fas fa-check-circle"></i> 实时数据同步</li>
+                        <li><i class="fas fa-check-circle"></i> 智能异常检测</li>
+                        <li><i class="fas fa-check-circle"></i> 离线签到支持</li>
+                        <li><i class="fas fa-check-circle"></i> 多种验证方式</li>
+                        <li><i class="fas fa-check-circle"></i> 数据备份恢复</li>
+                    </ul>
+                    <div class="mt-3">
+                        <p>测试账号：2424070299</p>
+                        <p>测试密码：123456</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- 注册页面 -->
-    <div id="register" class="page">
-        <div class="container" style="max-width: 600px; padding-top: 50px;">
-            <div class="card">
-                <h2 class="text-center mb-3">
+    <div id="registerPage" class="page">
+        <div class="register-container">
+            <div class="register-card">
+                <h2 class="register-title">
                     <i class="fas fa-user-plus"></i> 新用户注册
                 </h2>
                 
-                <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            <label for="regName">姓名</label>
-                            <input type="text" id="regName" class="form-control" 
-                                   placeholder="请输入真实姓名">
-                        </div>
-                    </div>
-                    
-                    <div class="col">
+                <form id="registerForm">
+                    <div class="form-row">
                         <div class="form-group">
                             <label for="regStudentId">学号</label>
-                            <input type="text" id="regStudentId" class="form-control" 
-                                   placeholder="请输入学号">
+                            <input type="text" id="regStudentId" placeholder="请输入10位学号" required>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="regClass">班级</label>
-                    <select id="regClass" class="form-control">
-                        <option value="">请选择班级</option>
-                        <option value="24级大数据A班">24级大数据A班</option>
-                        <option value="24级大数据B班">24级大数据B班</option>
-                        <option value="24级计科A班">24级计科A班</option>
-                        <option value="24级软工A班">24级软工A班</option>
-                    </select>
-                </div>
-                
-                <div class="row">
-                    <div class="col">
                         <div class="form-group">
-                            <label for="regPassword">密码</label>
-                            <input type="password" id="regPassword" class="form-control" 
-                                   placeholder="至少6位字符">
+                            <label for="regName">姓名</label>
+                            <input type="text" id="regName" placeholder="请输入真实姓名" required>
                         </div>
                     </div>
                     
-                    <div class="col">
+                    <div class="form-row">
                         <div class="form-group">
-                            <label for="regConfirmPassword">确认密码</label>
-                            <input type="password" id="regConfirmPassword" class="form-control" 
-                                   placeholder="再次输入密码">
+                            <label for="regClass">班级</label>
+                            <select id="regClass" required>
+                                <option value="">请选择班级</option>
+                                <option value="24级大数据A班">24级大数据A班</option>
+                                <option value="24级大数据B班">24级大数据B班</option>
+                                <option value="24级计科A班">24级计科A班</option>
+                                <option value="24级软工A班">24级软工A班</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="regEmail">邮箱</label>
+                            <input type="email" id="regEmail" placeholder="用于接收通知" required>
                         </div>
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 5px;">
-                        <input type="checkbox" id="agreeTerms" required>
-                        <span>我已阅读并同意<a href="#" onclick="showTerms()">《用户协议》</a></span>
-                    </label>
-                </div>
-                
-                <div class="d-flex flex-column" style="gap: 10px;">
-                    <button class="btn btn-primary" onclick="performRegister()">
-                        <i class="fas fa-user-plus"></i> 立即注册
-                    </button>
-                    <button class="btn btn-outline" onclick="showPage('login')">
-                        <i class="fas fa-sign-in-alt"></i> 已有账号？立即登录
-                    </button>
-                </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="regPassword">密码</label>
+                            <input type="password" id="regPassword" placeholder="至少6位字符" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regConfirmPassword">确认密码</label>
+                            <input type="password" id="regConfirmPassword" placeholder="再次输入密码" required>
+                        </div>
+                    </div>
+                    
+                    <div class="agreement">
+                        <label class="checkbox">
+                            <input type="checkbox" id="agreeTerms" required>
+                            <span>我已阅读并同意<a href="#" onclick="showTerms()">《用户协议》</a>和<a href="#" onclick="showPrivacy()">《隐私政策》</a></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" onclick="handleRegister()">
+                            <i class="fas fa-user-plus"></i> 立即注册
+                        </button>
+                        <button type="button" class="btn btn-outline" onclick="showPage('loginPage')">
+                            <i class="fas fa-sign-in-alt"></i> 已有账号？立即登录
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
     <!-- 仪表板页面 -->
-    <div id="dashboard" class="page">
-        <div class="container" style="padding-top: 30px;">
-            <!-- 欢迎区域 -->
-            <div class="card" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white;">
-                <div class="d-flex justify-between align-center">
-                    <div>
-                        <h2 id="greeting">上午好，演示用户！</h2>
-                        <p id="currentDateTime">2024年12月17日 星期二 08:30:15</p>
+    <div id="dashboardPage" class="page">
+        <div class="dashboard-container">
+            <!-- 欢迎横幅 -->
+            <div class="welcome-banner">
+                <div class="welcome-content">
+                    <h1 id="greetingText">上午好，张三同学！</h1>
+                    <p id="currentDateTime">2024年12月17日 星期二 08:30:15</p>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-circle"></i>
                     </div>
-                    <div style="text-align: right;">
-                        <h4 id="userInfo">演示用户</h4>
-                        <p>24级大数据A班</p>
+                    <div class="user-details">
+                        <h3 id="userName">张三</h3>
+                        <p id="userClass">24级大数据A班 | 学号：2424070299</p>
                     </div>
                 </div>
             </div>
-            
+
             <!-- 签到卡片 -->
-            <div class="row mt-3">
-                <div class="col">
-                    <div class="card text-center">
+            <div class="dashboard-grid">
+                <div class="card sign-card">
+                    <div class="card-header">
                         <h3><i class="fas fa-fingerprint"></i> 今日签到</h3>
-                        <div style="font-size: 48px; font-weight: bold; color: var(--primary-color); margin: 20px 0;">
-                            <span id="signTime">--:--</span>
-                        </div>
-                        <div style="color: #6c757d; margin-bottom: 20px;">
-                            签到时间：08:00 - 09:00
-                        </div>
+                        <span id="signStatus" class="status-danger">未签到</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="sign-time" id="signTime">--:--</div>
+                        <div class="sign-date" id="todayDate">2024-12-17</div>
                         
-                        <div class="row" style="margin: 20px -10px;">
-                            <div class="col">
-                                <div style="padding: 10px;">
-                                    <div style="font-size: 24px; font-weight: bold;" id="todayStatus">未签到</div>
-                                    <small>今日状态</small>
-                                </div>
+                        <div class="sign-info">
+                            <div class="info-item">
+                                <i class="fas fa-clock"></i>
+                                <div class="info-label">签到时间</div>
+                                <div class="info-value">08:00 - 09:00</div>
                             </div>
-                            <div class="col">
-                                <div style="padding: 10px;">
-                                    <div style="font-size: 24px; font-weight: bold;" id="continuousDays">5</div>
-                                    <small>连续签到</small>
-                                </div>
+                            <div class="info-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div class="info-label">有效区域</div>
+                                <div class="info-value">教学楼区域</div>
                             </div>
-                            <div class="col">
-                                <div style="padding: 10px;">
-                                    <div style="font-size: 24px; font-weight: bold;" id="attendanceRate">94%</div>
-                                    <small>出勤率</small>
-                                </div>
+                            <div class="info-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <div class="info-label">今日状态</div>
+                                <div class="info-value" id="todayStatus">未签到</div>
                             </div>
                         </div>
                         
-                        <button class="btn btn-success btn-lg btn-block" id="signButton" onclick="performSign()">
-                            <i class="fas fa-check-circle"></i> 立即签到
+                        <button class="btn btn-success btn-block btn-lg" id="signButton" onclick="signNow()">
+                            <i class="fas fa-check-circle"></i>
+                            <span>立即签到</span>
                         </button>
                         
-                        <div class="mt-2" style="color: #6c757d; font-size: 14px;">
-                            <i class="fas fa-info-circle"></i> 请在有效时间和区域内完成签到
+                        <div class="sign-tips mt-2">
+                            <i class="fas fa-info-circle"></i>
+                            <span>请在有效时间和区域内完成签到</span>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- 统计卡片 -->
-                <div class="col">
-                    <div class="card">
-                        <h3><i class="fas fa-chart-line"></i> 本周统计</h3>
-                        <div class="mt-2">
-                            <canvas id="weeklyChart" height="200"></canvas>
+                <div class="stats-grid">
+                    <div class="stat-card" onclick="showPage('statisticsPage')">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
                         </div>
+                        <div class="stat-value" id="monthCount">15</div>
+                        <div class="stat-label">本月签到</div>
                     </div>
                     
-                    <div class="card mt-3">
-                        <h3><i class="fas fa-calendar-alt"></i> 月度统计</h3>
-                        <div class="row mt-2" style="text-align: center;">
-                            <div class="col">
-                                <div style="font-size: 32px; font-weight: bold;" id="monthCount">15</div>
-                                <small>本月签到</small>
-                            </div>
-                            <div class="col">
-                                <div style="font-size: 32px; font-weight: bold;" id="totalCount">128</div>
-                                <small>总签到</small>
-                            </div>
+                    <div class="stat-card" onclick="showPage('attendancePage')">
+                        <div class="stat-icon">
+                            <i class="fas fa-fire"></i>
                         </div>
+                        <div class="stat-value" id="continuousDays">5</div>
+                        <div class="stat-label">连续签到</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-value" id="attendanceRate">94%</div>
+                        <div class="stat-label">出勤率</div>
+                    </div>
+                    
+                    <div class="stat-card" onclick="showPage('profilePage')">
+                        <div class="stat-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="stat-value" id="totalSign">128</div>
+                        <div class="stat-label">总签到次数</div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- 最近记录 -->
-            <div class="card mt-3">
-                <div class="d-flex justify-between align-center mb-3">
-                    <h3><i class="fas fa-history"></i> 最近签到记录</h3>
-                    <button class="btn btn-outline" onclick="showPage('attendance')">
-                        查看更多
-                    </button>
+            <div class="recent-section">
+                <h2><i class="fas fa-history"></i> 最近签到记录</h2>
+                <div class="records-list">
+                    <div class="record-item">
+                        <div class="record-date">2024-12-16</div>
+                        <div class="record-time">08:14:22</div>
+                        <div class="record-status status-success">正常</div>
+                        <div class="record-location">教学楼A101</div>
+                    </div>
+                    <div class="record-item">
+                        <div class="record-date">2024-12-15</div>
+                        <div class="record-time">08:20:15</div>
+                        <div class="record-status status-success">正常</div>
+                        <div class="record-location">教学楼B203</div>
+                    </div>
+                    <div class="record-item">
+                        <div class="record-date">2024-12-14</div>
+                        <div class="record-time">08:05:45</div>
+                        <div class="record-status status-success">正常</div>
+                        <div class="record-location">实验楼C301</div>
+                    </div>
+                    <div class="record-item">
+                        <div class="record-date">2024-12-13</div>
+                        <div class="record-time">08:30:10</div>
+                        <div class="record-status status-warning">迟到</div>
+                        <div class="record-location">教学楼A101</div>
+                    </div>
                 </div>
-                
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>日期</th>
-                                <th>时间</th>
-                                <th>状态</th>
-                                <th>地点</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recentRecords">
-                            <!-- 动态生成 -->
-                        </tbody>
-                    </table>
-                </div>
+                <button class="btn btn-outline btn-block" onclick="showPage('attendancePage')">
+                    <i class="fas fa-external-link-alt"></i> 查看全部记录
+                </button>
             </div>
         </div>
     </div>
 
     <!-- 签到记录页面 -->
-    <div id="attendance" class="page">
-        <div class="container" style="padding-top: 30px;">
-            <div class="card">
-                <div class="d-flex justify-between align-center mb-3">
-                    <h2><i class="fas fa-history"></i> 签到记录</h2>
-                    <button class="btn btn-primary" onclick="exportData()">
-                        <i class="fas fa-download"></i> 导出数据
-                    </button>
-                </div>
-                
-                <!-- 筛选区域 -->
-                <div class="row mb-3">
-                    <div class="col">
-                        <div class="form-group">
-                            <label>开始日期</label>
-                            <input type="date" id="filterStart" class="form-control">
-                        </div>
+    <div id="attendancePage" class="page">
+        <div class="attendance-container">
+            <div class="page-header">
+                <h1><i class="fas fa-history"></i> 签到记录</h1>
+                <button class="btn btn-primary" onclick="exportRecords()">
+                    <i class="fas fa-download"></i> 导出记录
+                </button>
+            </div>
+
+            <!-- 筛选区域 -->
+            <div class="filter-section">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>开始日期</label>
+                        <input type="date" id="startDate" value="2024-12-01">
                     </div>
-                    <div class="col">
-                        <div class="form-group">
-                            <label>结束日期</label>
-                            <input type="date" id="filterEnd" class="form-control">
-                        </div>
+                    <div class="filter-group">
+                        <label>结束日期</label>
+                        <input type="date" id="endDate" value="2024-12-17">
                     </div>
-                    <div class="col">
-                        <div class="form-group">
-                            <label>状态</label>
-                            <select id="filterStatus" class="form-control">
-                                <option value="">全部状态</option>
-                                <option value="normal">正常</option>
-                                <option value="late">迟到</option>
-                                <option value="early">早退</option>
-                            </select>
-                        </div>
+                    <div class="filter-group">
+                        <label>签到状态</label>
+                        <select id="statusFilter">
+                            <option value="">全部状态</option>
+                            <option value="normal">正常</option>
+                            <option value="late">迟到</option>
+                            <option value="early">早退</option>
+                            <option value="absent">缺勤</option>
+                        </select>
                     </div>
-                    <div class="col" style="align-self: flex-end;">
-                        <button class="btn btn-outline w-100" onclick="applyFilter()">
+                    <div class="filter-group">
+                        <button class="btn btn-primary" onclick="filterRecords()">
                             <i class="fas fa-filter"></i> 筛选
+                        </button>
+                        <button class="btn btn-outline" onclick="resetFilters()">
+                            <i class="fas fa-redo"></i> 重置
                         </button>
                     </div>
                 </div>
-                
-                <!-- 数据表格 -->
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>日期</th>
-                                <th>时间</th>
-                                <th>状态</th>
-                                <th>地点</th>
-                                <th>IP地址</th>
-                            </tr>
-                        </thead>
-                        <tbody id="attendanceTable">
-                            <!-- 动态生成 -->
-                        </tbody>
-                    </table>
-                </div>
-                
-                <!-- 分页 -->
-                <div class="d-flex justify-center align-center mt-3" style="gap: 20px;">
-                    <button class="btn btn-outline" onclick="prevPage()">
-                        <i class="fas fa-chevron-left"></i> 上一页
-                    </button>
-                    <span id="pageInfo">第1页，共3页</span>
-                    <button class="btn btn-outline" onclick="nextPage()">
-                        下一页 <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
+            </div>
+
+            <!-- 数据表格 -->
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>签到时间</th>
+                            <th>状态</th>
+                            <th>地点</th>
+                            <th>IP地址</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTable">
+                        <!-- 数据通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 分页 -->
+            <div class="pagination">
+                <button class="btn btn-outline" onclick="prevPage()">
+                    <i class="fas fa-chevron-left"></i> 上一页
+                </button>
+                <span id="pageInfo">第1页，共5页</span>
+                <button class="btn btn-outline" onclick="nextPage()">
+                    下一页 <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
     </div>
 
     <!-- 统计页面 -->
-    <div id="statistics" class="page">
-        <div class="container" style="padding-top: 30px;">
-            <div class="card">
-                <h2 class="text-center mb-3">
-                    <i class="fas fa-chart-bar"></i> 数据统计
-                </h2>
+    <div id="statisticsPage" class="page">
+        <div class="statistics-container">
+            <div class="page-header">
+                <h1><i class="fas fa-chart-bar"></i> 数据统计</h1>
+                <div class="filter-group">
+                    <select id="statPeriod" onchange="updateStatistics()">
+                        <option value="month">本月</option>
+                        <option value="week">本周</option>
+                        <option value="year">全年</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 统计摘要 -->
+            <div class="stats-summary">
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="summary-value" id="statTotal">128</div>
+                    <div class="summary-label">总签到次数</div>
+                </div>
                 
-                <!-- 统计卡片 -->
-                <div class="row mb-3">
-                    <div class="col">
-                        <div class="card text-center">
-                            <div style="font-size: 32px; font-weight: bold; color: var(--primary-color);" id="statTotal">
-                                128
-                            </div>
-                            <div>总签到次数</div>
-                        </div>
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-clock"></i>
                     </div>
-                    <div class="col">
-                        <div class="card text-center">
-                            <div style="font-size: 32px; font-weight: bold; color: #4CAF50;" id="statNormal">
-                                121
-                            </div>
-                            <div>正常签到</div>
-                        </div>
+                    <div class="summary-value" id="statAverage">08:12</div>
+                    <div class="summary-label">平均签到时间</div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-percentage"></i>
                     </div>
-                    <div class="col">
-                        <div class="card text-center">
-                            <div style="font-size: 32px; font-weight: bold; color: #FF9800;" id="statLate">
-                                7
-                            </div>
-                            <div>迟到次数</div>
-                        </div>
+                    <div class="summary-value" id="statRate">94.7%</div>
+                    <div class="summary-label">出勤率</div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-trophy"></i>
                     </div>
-                    <div class="col">
-                        <div class="card text-center">
-                            <div style="font-size: 32px; font-weight: bold; color: #2196F3;" id="statRate">
-                                94.7%
-                            </div>
-                            <div>出勤率</div>
-                        </div>
+                    <div class="summary-value" id="statBest">5</div>
+                    <div class="summary-label">最佳连续签到</div>
+                </div>
+            </div>
+
+            <!-- 图表区域 -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-line"></i> 签到趋势</h3>
+                    <div class="chart-container" id="trendChart">
+                        <!-- 图表将通过Canvas绘制 -->
+                        <canvas id="trendCanvas"></canvas>
                     </div>
                 </div>
                 
-                <!-- 图表区域 -->
-                <div class="row">
-                    <div class="col">
-                        <div class="card">
-                            <h4 class="text-center">签到趋势</h4>
-                            <canvas id="trendChart" height="250"></canvas>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card">
-                            <h4 class="text-center">状态分布</h4>
-                            <canvas id="statusChart" height="250"></canvas>
-                        </div>
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-pie"></i> 状态分布</h3>
+                    <div class="chart-container" id="statusChart">
+                        <canvas id="statusCanvas"></canvas>
                     </div>
                 </div>
-                
-                <!-- 时间分布 -->
-                <div class="card mt-3">
-                    <h4 class="text-center">签到时间分布</h4>
-                    <canvas id="timeChart" height="150"></canvas>
+            </div>
+
+            <!-- 详细统计 -->
+            <div class="comparison-section">
+                <h3><i class="fas fa-list-alt"></i> 详细数据</h3>
+                <div class="comparison-grid">
+                    <div class="summary-card">
+                        <div class="summary-value">22</div>
+                        <div class="summary-label">应签到天数</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">15</div>
+                        <div class="summary-label">实际签到</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">14</div>
+                        <div class="summary-label">正常签到</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">1</div>
+                        <div class="summary-label">迟到次数</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">0</div>
+                        <div class="summary-label">早退次数</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">0</div>
+                        <div class="summary-label">缺勤次数</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 个人中心 -->
-    <div id="profile" class="page">
-        <div class="container" style="padding-top: 30px;">
-            <div class="card">
-                <div class="text-center mb-3">
-                    <div style="font-size: 60px; color: var(--primary-color);">
-                        <i class="fas fa-user-circle"></i>
+    <!-- 个人中心页面 -->
+    <div id="profilePage" class="page">
+        <div class="profile-container">
+            <!-- 个人信息头部 -->
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-circle"></i>
+                    <div class="avatar-edit" onclick="changeAvatar()">
+                        <i class="fas fa-camera"></i>
                     </div>
-                    <h2 id="profileName">演示用户</h2>
-                    <p>24级大数据A班</p>
                 </div>
-                
-                <!-- 个人信息 -->
-                <div class="row">
-                    <div class="col">
-                        <div class="card">
-                            <h4><i class="fas fa-user"></i> 个人信息</h4>
-                            <div class="mt-2">
-                                <p><strong>学号：</strong> <span id="profileStudentId">20240001</span></p>
-                                <p><strong>班级：</strong> <span id="profileClass">24级大数据A班</span></p>
-                                <p><strong>邮箱：</strong> <span id="profileEmail">demo@example.com</span></p>
-                                <p><strong>注册时间：</strong> 2024-09-01</p>
-                            </div>
+                <div class="profile-info">
+                    <h2 id="profileName">张三</h2>
+                    <p>学生 | 24级大数据A班</p>
+                    <div class="profile-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-id-card"></i>
+                            <span id="profileStudentId">2424070299</span>
                         </div>
-                    </div>
-                    
-                    <div class="col">
-                        <div class="card">
-                            <h4><i class="fas fa-cog"></i> 账户设置</h4>
-                            <div class="mt-2 d-flex flex-column" style="gap: 10px;">
-                                <button class="btn btn-outline" onclick="showModal('changePasswordModal')">
-                                    <i class="fas fa-lock"></i> 修改密码
-                                </button>
-                                <button class="btn btn-outline" onclick="showModal('notificationModal')">
-                                    <i class="fas fa-bell"></i> 通知设置
-                                </button>
-                                <button class="btn btn-outline" onclick="showModal('privacyModal')">
-                                    <i class="fas fa-shield-alt"></i> 隐私设置
-                                </button>
-                            </div>
+                        <div class="meta-item">
+                            <i class="fas fa-envelope"></i>
+                            <span id="profileEmail">zhangsan@school.edu</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-phone"></i>
+                            <span id="profilePhone">13800138000</span>
                         </div>
                     </div>
                 </div>
-                
-                <!-- 系统信息 -->
-                <div class="card mt-3">
-                    <h4><i class="fas fa-info-circle"></i> 系统信息</h4>
-                    <div class="mt-2">
-                        <p>这是一个基于浏览器的签到系统演示版本</p>
-                        <p>所有数据保存在本地浏览器中，清空浏览器缓存会重置数据</p>
-                        <p>如需永久保存数据，请使用登录功能</p>
+            </div>
+
+            <!-- 个人信息和设置 -->
+            <div class="profile-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-user-cog"></i> 个人信息</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="profileForm" class="info-form">
+                            <div class="form-group">
+                                <label for="editName">姓名</label>
+                                <input type="text" id="editName" value="张三">
+                            </div>
+                            <div class="form-group">
+                                <label for="editEmail">邮箱</label>
+                                <input type="email" id="editEmail" value="zhangsan@school.edu">
+                            </div>
+                            <div class="form-group">
+                                <label for="editPhone">手机号</label>
+                                <input type="tel" id="editPhone" value="13800138000">
+                            </div>
+                            <div class="form-group">
+                                <label for="editClass">班级</label>
+                                <select id="editClass">
+                                    <option value="24级大数据A班" selected>24级大数据A班</option>
+                                    <option value="24级大数据B班">24级大数据B班</option>
+                                    <option value="24级计科A班">24级计科A班</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="saveProfile()">
+                                <i class="fas fa-save"></i> 保存修改
+                            </button>
+                        </form>
                     </div>
                 </div>
-                
-                <!-- 操作按钮 -->
-                <div class="mt-3 d-flex flex-column" style="gap: 10px;">
-                    <button class="btn btn-primary" onclick="showPage('dashboard')">
-                        <i class="fas fa-home"></i> 返回首页
-                    </button>
-                    <button class="btn btn-outline" onclick="clearData()">
-                        <i class="fas fa-trash"></i> 清除本地数据
-                    </button>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-cog"></i> 账户设置</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="settings-list">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>修改密码</h4>
+                                    <p>定期更换密码确保账户安全</p>
+                                </div>
+                                <button class="btn btn-outline btn-sm" onclick="changePassword()">
+                                    修改
+                                </button>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>登录设备</h4>
+                                    <p>管理已登录的设备</p>
+                                </div>
+                                <button class="btn btn-outline btn-sm" onclick="manageDevices()">
+                                    管理
+                                </button>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>隐私设置</h4>
+                                    <p>管理个人信息可见性</p>
+                                </div>
+                                <button class="btn btn-outline btn-sm" onclick="privacySettings()">
+                                    设置
+                                </button>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>通知设置</h4>
+                                    <p>管理签到提醒和通知</p>
+                                </div>
+                                <button class="btn btn-outline btn-sm" onclick="notificationSettings()">
+                                    设置
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button class="btn btn-danger btn-block" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i> 退出登录
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 模态框 -->
+    <!-- 签到成功模态框 -->
     <div id="signSuccessModal" class="modal">
         <div class="modal-content">
-            <div class="text-center">
-                <div style="font-size: 60px; color: #4CAF50; margin-bottom: 20px;">
-                    <i class="fas fa-check-circle"></i>
+            <div class="modal-header">
+                <h3><i class="fas fa-check-circle" style="color: #4CAF50;"></i> 签到成功！</h3>
+                <button class="modal-close" onclick="closeModal('signSuccessModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="sign-details">
+                    <p><i class="fas fa-user"></i> 张三 | 24级大数据A班</p>
+                    <p><i class="fas fa-clock"></i> 时间：<span id="modalSignTime">08:15:24</span></p>
+                    <p><i class="fas fa-map-marker-alt"></i> 地点：教学楼A101</p>
+                    <p><i class="fas fa-calendar"></i> 日期：2024-12-17</p>
                 </div>
-                <h3>签到成功！</h3>
-                <div class="mt-2">
-                    <p id="modalSignTime">签到时间：08:15:24</p>
-                    <p>签到地点：教学楼A101</p>
-                    <p>今日已连续签到 <span id="modalContinuousDays" style="font-weight: bold;">6</span> 天</p>
+                <div class="achievement mt-2" style="background: #E8F5E9; padding: 15px; border-radius: 8px;">
+                    <i class="fas fa-trophy" style="color: #FF9800;"></i>
+                    <span>已连续签到 <strong id="modalContinuousDays">6</strong> 天！</span>
                 </div>
-                <div class="mt-3 d-flex justify-center" style="gap: 10px;">
-                    <button class="btn btn-primary" onclick="hideModal('signSuccessModal')">
-                        确定
-                    </button>
-                    <button class="btn btn-outline" onclick="showPage('attendance'); hideModal('signSuccessModal')">
-                        查看记录
-                    </button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('signSuccessModal')">
+                    确定
+                </button>
+                <button class="btn btn-outline" onclick="showPage('attendancePage'); closeModal('signSuccessModal')">
+                    查看记录
+                </button>
             </div>
         </div>
     </div>
@@ -978,114 +2051,199 @@
     <!-- 修改密码模态框 -->
     <div id="changePasswordModal" class="modal">
         <div class="modal-content">
-            <h3 class="mb-3"><i class="fas fa-lock"></i> 修改密码</h3>
-            <div class="form-group">
-                <label>当前密码</label>
-                <input type="password" class="form-control" placeholder="请输入当前密码">
+            <div class="modal-header">
+                <h3><i class="fas fa-lock"></i> 修改密码</h3>
+                <button class="modal-close" onclick="closeModal('changePasswordModal')">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div class="form-group">
-                <label>新密码</label>
-                <input type="password" class="form-control" placeholder="至少6位字符">
+            <div class="modal-body">
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label for="currentPassword">当前密码</label>
+                        <input type="password" id="currentPassword" placeholder="请输入当前密码">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">新密码</label>
+                        <input type="password" id="newPassword" placeholder="至少6位字符">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">确认新密码</label>
+                        <input type="password" id="confirmPassword" placeholder="再次输入新密码">
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label>确认新密码</label>
-                <input type="password" class="form-control" placeholder="再次输入新密码">
-            </div>
-            <div class="mt-3 d-flex justify-end" style="gap: 10px;">
-                <button class="btn btn-primary" onclick="alert('密码修改成功！'); hideModal('changePasswordModal')">
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="updatePassword()">
                     确认修改
                 </button>
-                <button class="btn btn-outline" onclick="hideModal('changePasswordModal')">
+                <button class="btn btn-outline" onclick="closeModal('changePasswordModal')">
                     取消
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 页脚 -->
-    <div style="background: white; padding: 20px; margin-top: 50px; text-align: center; color: #6c757d;">
-        <p>学生打卡签到系统 &copy; 2024 | 演示版本</p>
-        <p style="font-size: 12px;">
-            本系统为纯前端实现，数据保存在浏览器本地，刷新页面会保留数据，清空缓存会重置。
-        </p>
-    </div>
-
     <script>
         // ===== 全局变量 =====
-        let currentPage = 'home';
-        let isLoggedIn = false;
-        let userData = {
-            name: '演示用户',
-            studentId: '20240001',
-            class: '24级大数据A班',
-            email: 'demo@example.com'
-        };
-        let attendanceRecords = [];
-        let filteredRecords = [];
-        let currentPageNum = 1;
-        const pageSize = 10;
+        let currentPage = 'homePage';
+        let attendanceData = [];
+        let currentPageNumber = 1;
+        const itemsPerPage = 10;
 
         // ===== 页面管理 =====
         function showPage(pageId) {
-            // 隐藏所有页面
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
+            // 隐藏当前页面
+            document.getElementById(currentPage).classList.remove('active');
             
-            // 更新导航栏
+            // 更新导航栏激活状态
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
             
-            // 显示目标页面
+            // 显示新页面
             document.getElementById(pageId).classList.add('active');
-            
-            // 设置对应的导航链接为激活状态
-            const navIndex = {
-                'home': 0, 'dashboard': 1, 'attendance': 2, 
-                'statistics': 3, 'profile': 4
-            };
-            if (navIndex[pageId] !== undefined) {
-                document.querySelectorAll('.nav-link')[navIndex[pageId]].classList.add('active');
-            }
-            
             currentPage = pageId;
             
-            // 页面特定的初始化
-            switch(pageId) {
-                case 'dashboard':
-                    initDashboard();
-                    break;
-                case 'attendance':
-                    initAttendancePage();
-                    break;
-                case 'statistics':
-                    initStatisticsPage();
-                    break;
-                case 'profile':
-                    initProfilePage();
-                    break;
-            }
-            
-            // 关闭移动端菜单
-            document.getElementById('navLinks').classList.remove('active');
+            // 更新导航栏
+            updateNavbar(pageId);
             
             // 滚动到顶部
             window.scrollTo(0, 0);
+            
+            // 页面特定初始化
+            switch(pageId) {
+                case 'dashboardPage':
+                    initDashboard();
+                    break;
+                case 'attendancePage':
+                    initAttendancePage();
+                    break;
+                case 'statisticsPage':
+                    initStatisticsPage();
+                    break;
+                case 'profilePage':
+                    initProfilePage();
+                    break;
+            }
         }
 
-        function toggleMenu() {
-            const navLinks = document.getElementById('navLinks');
-            navLinks.classList.toggle('active');
+        function updateNavbar(pageId) {
+            const navLinks = {
+                'homePage': 0,
+                'dashboardPage': 1,
+                'attendancePage': 2,
+                'statisticsPage': 3,
+                'profilePage': 4
+            };
+            
+            const index = navLinks[pageId];
+            if (index !== undefined) {
+                document.querySelectorAll('.nav-link')[index].classList.add('active');
+            }
         }
 
-        // ===== 用户认证 =====
-        function performLogin() {
-            const username = document.getElementById('loginUsername').value;
+        // ===== 初始化函数 =====
+        function initDashboard() {
+            updateDateTime();
+            loadUserData();
+            updateGreeting();
+            checkTodayAttendance();
+            loadStatistics();
+            generateRecentRecords();
+            
+            // 每秒更新时间
+            setInterval(updateDateTime, 1000);
+        }
+
+        function initAttendancePage() {
+            generateAttendanceData();
+            renderAttendanceTable();
+            updatePaginationInfo();
+        }
+
+        function initStatisticsPage() {
+            updateStatistics();
+            initCharts();
+        }
+
+        function initProfilePage() {
+            loadProfileData();
+        }
+
+        // ===== 日期时间相关 =====
+        function updateDateTime() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+            const timeStr = now.toLocaleTimeString('zh-CN');
+            
+            // 更新所有日期时间显示
+            document.querySelectorAll('#currentDateTime').forEach(el => {
+                el.textContent = `${dateStr} ${timeStr}`;
+            });
+            
+            // 更新问候语
+            updateGreeting();
+        }
+
+        function updateGreeting() {
+            const now = new Date();
+            const hour = now.getHours();
+            let greeting = '晚上';
+            if (hour < 12) greeting = '上午';
+            else if (hour < 18) greeting = '下午';
+            
+            const greetingText = document.getElementById('greetingText');
+            if (greetingText) {
+                greetingText.textContent = `${greeting}好，${getUserName()}同学！`;
+            }
+        }
+
+        // ===== 用户相关 =====
+        function getUserName() {
+            return localStorage.getItem('userName') || '张三';
+        }
+
+        function getUserData() {
+            return {
+                name: localStorage.getItem('userName') || '张三',
+                studentId: localStorage.getItem('studentId') || '2424070299',
+                class: localStorage.getItem('userClass') || '24级大数据A班',
+                email: localStorage.getItem('userEmail') || 'zhangsan@school.edu',
+                phone: localStorage.getItem('userPhone') || '13800138000'
+            };
+        }
+
+        function loadUserData() {
+            const user = getUserData();
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userClass').textContent = `${user.class} | 学号：${user.studentId}`;
+        }
+
+        function loadProfileData() {
+            const user = getUserData();
+            document.getElementById('profileName').textContent = user.name;
+            document.getElementById('profileStudentId').textContent = user.studentId;
+            document.getElementById('profileEmail').textContent = user.email;
+            document.getElementById('profilePhone').textContent = user.phone;
+            document.getElementById('editName').value = user.name;
+            document.getElementById('editEmail').value = user.email;
+            document.getElementById('editPhone').value = user.phone;
+            document.getElementById('editClass').value = user.class;
+        }
+
+        // ===== 登录注册 =====
+        function handleLogin() {
+            const studentId = document.getElementById('loginStudentId').value;
             const password = document.getElementById('loginPassword').value;
             
-            if (!username || !password) {
-                alert('请输入用户名和密码');
+            if (!studentId || !password) {
+                alert('请输入学号和密码');
                 return;
             }
             
@@ -1093,29 +2251,26 @@
             showLoading();
             
             setTimeout(() => {
-                // 这里可以添加真实的登录逻辑
-                isLoggedIn = true;
-                userData.name = username === 'demo_user' ? '演示用户' : username;
+                // 保存用户信息
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('studentId', studentId);
+                localStorage.setItem('userName', '张三');
+                localStorage.setItem('userClass', '24级大数据A班');
                 
-                // 更新显示
-                document.getElementById('userInfo').textContent = userData.name;
-                document.getElementById('profileName').textContent = userData.name;
-                document.getElementById('demoUser').textContent = userData.name;
-                
+                // 跳转到仪表板
+                showPage('dashboardPage');
                 hideLoading();
-                showPage('dashboard');
-                
-                alert('登录成功！欢迎使用签到系统');
+                alert('登录成功！');
             }, 1000);
         }
 
-        function performRegister() {
-            const name = document.getElementById('regName').value;
+        function handleRegister() {
             const studentId = document.getElementById('regStudentId').value;
+            const name = document.getElementById('regName').value;
             const password = document.getElementById('regPassword').value;
             const confirmPassword = document.getElementById('regConfirmPassword').value;
             
-            if (!name || !studentId || !password || !confirmPassword) {
+            if (!studentId || !name || !password || !confirmPassword) {
                 alert('请填写所有必填项');
                 return;
             }
@@ -1130,41 +2285,38 @@
                 return;
             }
             
-            if (!document.getElementById('agreeTerms').checked) {
-                alert('请同意用户协议');
-                return;
-            }
-            
             // 模拟注册过程
             showLoading();
             
             setTimeout(() => {
-                isLoggedIn = true;
-                userData = {
-                    name: name,
-                    studentId: studentId,
-                    class: document.getElementById('regClass').value || '24级大数据A班',
-                    email: studentId + '@school.edu'
-                };
+                // 保存用户信息
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('studentId', studentId);
+                localStorage.setItem('userName', name);
+                localStorage.setItem('userClass', document.getElementById('regClass').value);
+                localStorage.setItem('userEmail', document.getElementById('regEmail').value);
                 
-                // 保存到本地存储
-                saveToLocalStorage();
-                
+                // 跳转到仪表板
+                showPage('dashboardPage');
                 hideLoading();
-                showPage('dashboard');
-                
                 alert('注册成功！已自动登录。');
             }, 1500);
         }
 
         // ===== 签到功能 =====
-        function performSign() {
+        function signNow() {
+            const signButton = document.getElementById('signButton');
             const now = new Date();
-            const currentTime = now.getHours() * 60 + now.getMinutes();
+            const timeStr = now.toLocaleTimeString('zh-CN');
+            const dateStr = now.toISOString().split('T')[0];
+            
+            // 检查是否在签到时间内
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+            const currentTime = hour * 60 + minute;
             const startTime = 8 * 60; // 08:00
             const endTime = 9 * 60;   // 09:00
             
-            // 检查是否在签到时间内
             if (currentTime < startTime) {
                 alert('签到时间未到，请在08:00-09:00之间签到');
                 return;
@@ -1175,154 +2327,60 @@
                 return;
             }
             
-            // 检查今日是否已签到
-            const today = now.toISOString().split('T')[0];
-            if (attendanceRecords.some(record => record.date === today)) {
-                alert('今日已签到，无需重复签到');
-                return;
-            }
-            
             // 更新按钮状态
-            const signButton = document.getElementById('signButton');
-            signButton.innerHTML = '<div class="loader" style="margin: 0 auto;"></div>';
+            signButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 签到中...';
             signButton.disabled = true;
             
             // 模拟签到过程
             setTimeout(() => {
-                const timeStr = now.toLocaleTimeString('zh-CN');
-                
-                // 确定状态
-                let status = 'normal';
-                if (currentTime > 8 * 60 + 15) { // 08:15之后算迟到
-                    status = 'late';
-                }
-                
-                // 创建记录
+                // 保存签到记录
+                const attendance = JSON.parse(localStorage.getItem('attendance')) || [];
                 const newRecord = {
                     id: Date.now(),
-                    date: today,
+                    date: dateStr,
                     time: timeStr,
-                    status: status,
                     location: '教学楼A101',
-                    ip: `192.168.1.${Math.floor(Math.random() * 255)}`
+                    status: 'normal',
+                    ip: '192.168.1.' + Math.floor(Math.random() * 255)
                 };
-                
-                // 添加到记录列表
-                attendanceRecords.unshift(newRecord);
-                filteredRecords = [...attendanceRecords];
-                
-                // 保存到本地存储
-                saveToLocalStorage();
+                attendance.push(newRecord);
+                localStorage.setItem('attendance', JSON.stringify(attendance));
                 
                 // 更新界面
-                updateDashboardAfterSign(timeStr, status);
+                document.getElementById('signStatus').textContent = '已签到';
+                document.getElementById('signStatus').className = 'status-success';
+                document.getElementById('todayStatus').textContent = '已签到';
+                document.getElementById('signTime').textContent = timeStr;
+                document.getElementById('modalSignTime').textContent = timeStr;
+                
+                // 更新连续签到天数
+                updateContinuousDays();
                 
                 // 显示成功弹窗
+                document.getElementById('modalContinuousDays').textContent = 
+                    parseInt(document.getElementById('continuousDays').textContent) + 1;
                 showModal('signSuccessModal');
-                document.getElementById('modalSignTime').textContent = `签到时间：${timeStr}`;
                 
-                // 计算连续签到天数
-                const continuousDays = calculateContinuousDays();
-                document.getElementById('modalContinuousDays').textContent = continuousDays;
-                document.getElementById('continuousDays').textContent = continuousDays;
+                // 更新按钮状态
+                signButton.innerHTML = '<i class="fas fa-check-circle"></i> 今日已签到';
+                signButton.classList.remove('btn-success');
+                signButton.classList.add('btn-secondary');
+                
+                // 更新统计数据
+                updateDashboardStats();
             }, 1500);
-        }
-
-        function updateDashboardAfterSign(time, status) {
-            // 更新时间显示
-            document.getElementById('signTime').textContent = time;
-            document.getElementById('todayStatus').textContent = status === 'normal' ? '已签到' : '迟到';
-            
-            // 更新按钮状态
-            const signButton = document.getElementById('signButton');
-            signButton.innerHTML = '<i class="fas fa-check-circle"></i> 今日已签到';
-            signButton.classList.remove('btn-success');
-            signButton.classList.add('btn-secondary');
-            signButton.disabled = true;
-            
-            // 更新统计数据
-            updateStatistics();
-            
-            // 更新最近记录
-            updateRecentRecords();
-        }
-
-        function calculateContinuousDays() {
-            if (attendanceRecords.length === 0) return 0;
-            
-            let continuous = 1;
-            const sortedRecords = [...attendanceRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            for (let i = 1; i < sortedRecords.length; i++) {
-                const date1 = new Date(sortedRecords[i-1].date);
-                const date2 = new Date(sortedRecords[i].date);
-                const diff = (date1 - date2) / (1000 * 60 * 60 * 24);
-                
-                if (diff === 1) {
-                    continuous++;
-                } else {
-                    break;
-                }
-            }
-            
-            return continuous;
-        }
-
-        // ===== 仪表板初始化 =====
-        function initDashboard() {
-            // 加载数据
-            loadFromLocalStorage();
-            
-            // 更新时间和问候语
-            updateDateTime();
-            updateGreeting();
-            
-            // 检查今日签到状态
-            checkTodayAttendance();
-            
-            // 初始化图表
-            initWeeklyChart();
-            
-            // 更新统计数据
-            updateDashboardStats();
-            
-            // 更新最近记录
-            updateRecentRecords();
-            
-            // 开始时间更新
-            startTimeUpdate();
-        }
-
-        function updateDateTime() {
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('zh-CN', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                weekday: 'long'
-            });
-            const timeStr = now.toLocaleTimeString('zh-CN');
-            
-            document.getElementById('currentDateTime').textContent = `${dateStr} ${timeStr}`;
-        }
-
-        function updateGreeting() {
-            const now = new Date();
-            const hour = now.getHours();
-            let greeting = '晚上';
-            if (hour < 12) greeting = '上午';
-            else if (hour < 18) greeting = '下午';
-            
-            document.getElementById('greeting').textContent = `${greeting}好，${userData.name}！`;
         }
 
         function checkTodayAttendance() {
             const today = new Date().toISOString().split('T')[0];
-            const todayRecord = attendanceRecords.find(record => record.date === today);
+            const attendance = JSON.parse(localStorage.getItem('attendance')) || [];
+            const todayRecord = attendance.find(record => record.date === today);
             
             if (todayRecord) {
+                document.getElementById('signStatus').textContent = '已签到';
+                document.getElementById('signStatus').className = 'status-success';
+                document.getElementById('todayStatus').textContent = '已签到';
                 document.getElementById('signTime').textContent = todayRecord.time;
-                document.getElementById('todayStatus').textContent = todayRecord.status === 'normal' ? '已签到' : '迟到';
                 
                 const signButton = document.getElementById('signButton');
                 signButton.innerHTML = '<i class="fas fa-check-circle"></i> 今日已签到';
@@ -1332,383 +2390,74 @@
             }
         }
 
-        function initWeeklyChart() {
-            const ctx = document.getElementById('weeklyChart').getContext('2d');
+        function updateContinuousDays() {
+            const attendance = JSON.parse(localStorage.getItem('attendance')) || [];
+            if (attendance.length === 0) return;
             
-            // 生成最近7天的数据
-            const labels = [];
-            const data = [];
+            // 按日期排序
+            attendance.sort((a, b) => new Date(a.date) - new Date(b.date));
             
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date();
-                date.setDate(date.getDate() - i);
-                labels.push(date.getDate() + '日');
+            let maxContinuous = 1;
+            let currentContinuous = 1;
+            
+            for (let i = 1; i < attendance.length; i++) {
+                const prevDate = new Date(attendance[i-1].date);
+                const currDate = new Date(attendance[i].date);
+                const diff = (currDate - prevDate) / (1000 * 60 * 60 * 24);
                 
-                // 检查当天是否有签到
-                const dateStr = date.toISOString().split('T')[0];
-                const hasSigned = attendanceRecords.some(record => record.date === dateStr);
-                data.push(hasSigned ? 1 : 0);
+                if (diff === 1) {
+                    currentContinuous++;
+                    maxContinuous = Math.max(maxContinuous, currentContinuous);
+                } else if (diff > 1) {
+                    currentContinuous = 1;
+                }
             }
             
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: '签到情况',
-                        data: data,
-                        backgroundColor: data.map(val => val ? '#4CAF50' : '#e0e0e0'),
-                        borderColor: data.map(val => val ? '#388E3C' : '#bdbdbd'),
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 1,
-                            ticks: {
-                                stepSize: 1,
-                                callback: function(value) {
-                                    return value === 1 ? '已签' : '未签';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+            document.getElementById('continuousDays').textContent = maxContinuous;
+            localStorage.setItem('continuousDays', maxContinuous);
         }
 
-        function updateDashboardStats() {
-            // 本月签到次数
+        // ===== 数据统计 =====
+        function loadStatistics() {
+            const attendance = JSON.parse(localStorage.getItem('attendance')) || [];
             const now = new Date();
             const currentMonth = now.getMonth() + 1;
-            const monthCount = attendanceRecords.filter(record => {
-                const recordMonth = new Date(record.date).getMonth() + 1;
-                return recordMonth === currentMonth;
+            
+            // 计算本月签到次数
+            const monthCount = attendance.filter(record => {
+                const recordDate = new Date(record.date);
+                return recordDate.getMonth() + 1 === currentMonth;
             }).length;
             
-            // 总签到次数
-            const totalCount = attendanceRecords.length;
+            // 计算总签到次数
+            const totalCount = attendance.length;
             
-            // 连续签到天数
-            const continuousDays = calculateContinuousDays();
-            
-            // 出勤率（本月）
-            const workingDays = 22; // 假设本月22个工作日
-            const attendanceRate = Math.round((monthCount / workingDays) * 100);
+            // 计算出勤率（模拟数据）
+            const attendanceRate = attendance.length > 0 ? '94%' : '0%';
             
             // 更新显示
             document.getElementById('monthCount').textContent = monthCount;
-            document.getElementById('totalCount').textContent = totalCount;
-            document.getElementById('continuousDays').textContent = continuousDays;
-            document.getElementById('attendanceRate').textContent = attendanceRate + '%';
+            document.getElementById('totalSign').textContent = totalCount;
+            document.getElementById('attendanceRate').textContent = attendanceRate;
         }
 
-        function updateRecentRecords() {
-            const tbody = document.getElementById('recentRecords');
-            tbody.innerHTML = '';
+        function updateDashboardStats() {
+            const monthCount = parseInt(document.getElementById('monthCount').textContent);
+            const totalCount = parseInt(document.getElementById('totalSign').textContent);
             
-            // 显示最近5条记录
-            const recentRecords = attendanceRecords.slice(0, 5);
+            document.getElementById('monthCount').textContent = monthCount + 1;
+            document.getElementById('totalSign').textContent = totalCount + 1;
             
-            recentRecords.forEach(record => {
-                const row = document.createElement('tr');
-                
-                let statusBadge = '';
-                if (record.status === 'normal') {
-                    statusBadge = '<span class="badge badge-success">正常</span>';
-                } else if (record.status === 'late') {
-                    statusBadge = '<span class="badge badge-warning">迟到</span>';
-                } else {
-                    statusBadge = '<span class="badge badge-danger">异常</span>';
-                }
-                
-                row.innerHTML = `
-                    <td>${record.date}</td>
-                    <td>${record.time}</td>
-                    <td>${statusBadge}</td>
-                    <td>${record.location}</td>
-                `;
-                
-                tbody.appendChild(row);
-            });
+            // 重新计算连续天数
+            updateContinuousDays();
         }
 
         // ===== 签到记录页面 =====
-        function initAttendancePage() {
-            loadFromLocalStorage();
-            filteredRecords = [...attendanceRecords];
-            renderAttendanceTable();
-            updatePaginationInfo();
-        }
-
-        function renderAttendanceTable() {
-            const tbody = document.getElementById('attendanceTable');
-            tbody.innerHTML = '';
-            
-            const startIndex = (currentPageNum - 1) * pageSize;
-            const endIndex = startIndex + pageSize;
-            const pageData = filteredRecords.slice(startIndex, endIndex);
-            
-            pageData.forEach(record => {
-                const row = document.createElement('tr');
-                
-                let statusBadge = '';
-                if (record.status === 'normal') {
-                    statusBadge = '<span class="badge badge-success">正常</span>';
-                } else if (record.status === 'late') {
-                    statusBadge = '<span class="badge badge-warning">迟到</span>';
-                } else {
-                    statusBadge = '<span class="badge badge-danger">异常</span>';
-                }
-                
-                row.innerHTML = `
-                    <td>${record.date}</td>
-                    <td>${record.time}</td>
-                    <td>${statusBadge}</td>
-                    <td>${record.location}</td>
-                    <td>${record.ip}</td>
-                `;
-                
-                tbody.appendChild(row);
-            });
-        }
-
-        function applyFilter() {
-            const startDate = document.getElementById('filterStart').value;
-            const endDate = document.getElementById('filterEnd').value;
-            const status = document.getElementById('filterStatus').value;
-            
-            filteredRecords = attendanceRecords.filter(record => {
-                let pass = true;
-                
-                if (startDate && record.date < startDate) {
-                    pass = false;
-                }
-                
-                if (endDate && record.date > endDate) {
-                    pass = false;
-                }
-                
-                if (status && record.status !== status) {
-                    pass = false;
-                }
-                
-                return pass;
-            });
-            
-            currentPageNum = 1;
-            renderAttendanceTable();
-            updatePaginationInfo();
-        }
-
-        function prevPage() {
-            if (currentPageNum > 1) {
-                currentPageNum--;
-                renderAttendanceTable();
-                updatePaginationInfo();
-            }
-        }
-
-        function nextPage() {
-            const totalPages = Math.ceil(filteredRecords.length / pageSize);
-            if (currentPageNum < totalPages) {
-                currentPageNum++;
-                renderAttendanceTable();
-                updatePaginationInfo();
-            }
-        }
-
-        function updatePaginationInfo() {
-            const totalPages = Math.ceil(filteredRecords.length / pageSize);
-            document.getElementById('pageInfo').textContent = `第${currentPageNum}页，共${totalPages}页`;
-        }
-
-        function exportData() {
-            // 创建CSV内容
-            let csv = '日期,时间,状态,地点,IP地址\n';
-            
-            filteredRecords.forEach(record => {
-                const statusText = record.status === 'normal' ? '正常' : 
-                                 record.status === 'late' ? '迟到' : '异常';
-                csv += `${record.date},${record.time},${statusText},${record.location},${record.ip}\n`;
-            });
-            
-            // 创建下载链接
-            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `签到记录_${new Date().toISOString().split('T')[0]}.csv`;
-            link.click();
-            
-            alert('数据导出成功！');
-        }
-
-        // ===== 统计页面 =====
-        function initStatisticsPage() {
-            loadFromLocalStorage();
-            updateStatistics();
-            initCharts();
-        }
-
-        function updateStatistics() {
-            // 计算统计数据
-            const total = attendanceRecords.length;
-            const normal = attendanceRecords.filter(r => r.status === 'normal').length;
-            const late = attendanceRecords.filter(r => r.status === 'late').length;
-            const rate = total > 0 ? Math.round((normal / total) * 100) : 0;
-            
-            // 更新显示
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statNormal').textContent = normal;
-            document.getElementById('statLate').textContent = late;
-            document.getElementById('statRate').textContent = rate + '%';
-        }
-
-        function initCharts() {
-            // 趋势图
-            const trendCtx = document.getElementById('trendChart').getContext('2d');
-            
-            // 生成最近30天的数据
-            const labels = [];
-            const data = [];
-            
-            for (let i = 29; i >= 0; i--) {
-                const date = new Date();
-                date.setDate(date.getDate() - i);
-                labels.push((date.getMonth() + 1) + '/' + date.getDate());
-                
-                // 检查当天是否有签到
-                const dateStr = date.toISOString().split('T')[0];
-                const record = attendanceRecords.find(r => r.date === dateStr);
-                data.push(record ? 1 : 0);
-            }
-            
-            new Chart(trendCtx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: '签到情况',
-                        data: data,
-                        borderColor: '#4361ee',
-                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 1,
-                            ticks: {
-                                stepSize: 1,
-                                callback: function(value) {
-                                    return value === 1 ? '已签' : '未签';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // 状态分布图
-            const statusCtx = document.getElementById('statusChart').getContext('2d');
-            
-            const normalCount = attendanceRecords.filter(r => r.status === 'normal').length;
-            const lateCount = attendanceRecords.filter(r => r.status === 'late').length;
-            const otherCount = attendanceRecords.length - normalCount - lateCount;
-            
-            new Chart(statusCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['正常', '迟到', '其他'],
-                    datasets: [{
-                        data: [normalCount, lateCount, otherCount],
-                        backgroundColor: ['#4CAF50', '#FF9800', '#F44336']
-                    }]
-                }
-            });
-            
-            // 时间分布图
-            const timeCtx = document.getElementById('timeChart').getContext('2d');
-            
-            // 统计签到时间分布
-            const timeData = [0, 0, 0, 0]; // 08:00-08:15, 08:15-08:30, 08:30-09:00, 其他
-            
-            attendanceRecords.forEach(record => {
-                const time = record.time;
-                const hour = parseInt(time.split(':')[0]);
-                const minute = parseInt(time.split(':')[1]);
-                
-                if (hour === 8) {
-                    if (minute <= 15) timeData[0]++;
-                    else if (minute <= 30) timeData[1]++;
-                    else timeData[2]++;
-                } else {
-                    timeData[3]++;
-                }
-            });
-            
-            new Chart(timeCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['08:00-08:15', '08:15-08:30', '08:30-09:00', '其他时间'],
-                    datasets: [{
-                        label: '签到人数',
-                        data: timeData,
-                        backgroundColor: '#2196F3'
-                    }]
-                }
-            });
-        }
-
-        // ===== 个人中心 =====
-        function initProfilePage() {
-            document.getElementById('profileName').textContent = userData.name;
-            document.getElementById('profileStudentId').textContent = userData.studentId;
-            document.getElementById('profileClass').textContent = userData.class;
-            document.getElementById('profileEmail').textContent = userData.email;
-        }
-
-        // ===== 本地存储 =====
-        function saveToLocalStorage() {
-            const data = {
-                userData: userData,
-                attendanceRecords: attendanceRecords,
-                isLoggedIn: isLoggedIn
-            };
-            localStorage.setItem('attendanceSystem', JSON.stringify(data));
-        }
-
-        function loadFromLocalStorage() {
-            const saved = localStorage.getItem('attendanceSystem');
-            if (saved) {
-                const data = JSON.parse(saved);
-                userData = data.userData || userData;
-                attendanceRecords = data.attendanceRecords || [];
-                isLoggedIn = data.isLoggedIn || false;
-                
-                // 生成一些初始数据（如果没有）
-                if (attendanceRecords.length === 0) {
-                    generateInitialData();
-                }
-            } else {
-                generateInitialData();
-            }
-            
-            filteredRecords = [...attendanceRecords];
-        }
-
-        function generateInitialData() {
-            // 生成30天的模拟数据
+        function generateAttendanceData() {
+            attendanceData = [];
             const now = new Date();
             
+            // 生成30天的模拟数据
             for (let i = 29; i >= 0; i--) {
                 const date = new Date(now);
                 date.setDate(date.getDate() - i);
@@ -1718,121 +2467,436 @@
                 const day = date.getDay();
                 if (day === 0 || day === 6) continue;
                 
-                // 随机决定是否签到
-                if (Math.random() > 0.2) { // 80%的概率签到
-                    // 随机时间（08:00-08:30之间）
-                    const hour = 8;
-                    const minute = Math.floor(Math.random() * 30);
-                    const second = Math.floor(Math.random() * 60);
-                    const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
-                    
-                    // 随机状态
-                    const status = Math.random() > 0.85 ? 'late' : 'normal';
-                    
-                    attendanceRecords.push({
-                        id: Date.now() - i * 86400000,
-                        date: dateStr,
-                        time: timeStr,
-                        status: status,
-                        location: Math.random() > 0.5 ? '教学楼A101' : '教学楼B203',
-                        ip: `192.168.1.${Math.floor(Math.random() * 255)}`
-                    });
-                }
-            }
-            
-            // 确保今天有数据（用于演示）
-            const today = now.toISOString().split('T')[0];
-            if (!attendanceRecords.some(r => r.date === today)) {
-                attendanceRecords.push({
-                    id: Date.now(),
-                    date: today,
-                    time: '08:15:24',
-                    status: 'normal',
-                    location: '教学楼A101',
-                    ip: '192.168.1.100'
+                // 生成随机时间（08:00-08:30之间）
+                const hour = 8;
+                const minute = Math.floor(Math.random() * 30);
+                const second = Math.floor(Math.random() * 60);
+                const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
+                
+                // 随机状态
+                const statuses = ['normal', 'late', 'early', 'absent'];
+                const statusWeights = [0.85, 0.10, 0.03, 0.02];
+                const status = weightedRandom(statuses, statusWeights);
+                
+                // 随机地点
+                const locations = ['教学楼A101', '教学楼B203', '实验楼C301', '图书馆D405'];
+                const location = locations[Math.floor(Math.random() * locations.length)];
+                
+                // 随机IP
+                const ip = `192.168.1.${Math.floor(Math.random() * 255)}`;
+                
+                attendanceData.push({
+                    id: Date.now() - i * 86400000,
+                    date: dateStr,
+                    time: timeStr,
+                    status: status,
+                    location: location,
+                    ip: ip
                 });
             }
         }
 
-        function clearData() {
-            if (confirm('确定要清除所有本地数据吗？这将重置系统到初始状态。')) {
-                localStorage.removeItem('attendanceSystem');
-                location.reload();
+        function weightedRandom(items, weights) {
+            const total = weights.reduce((a, b) => a + b, 0);
+            const random = Math.random() * total;
+            let sum = 0;
+            
+            for (let i = 0; i < items.length; i++) {
+                sum += weights[i];
+                if (random <= sum) return items[i];
+            }
+            
+            return items[items.length - 1];
+        }
+
+        function renderAttendanceTable() {
+            const tbody = document.getElementById('attendanceTable');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            const startIndex = (currentPageNumber - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = attendanceData.slice(startIndex, endIndex);
+            
+            pageData.forEach(record => {
+                const row = document.createElement('tr');
+                
+                // 状态显示
+                let statusText, statusClass;
+                switch(record.status) {
+                    case 'normal':
+                        statusText = '正常';
+                        statusClass = 'status-success';
+                        break;
+                    case 'late':
+                        statusText = '迟到';
+                        statusClass = 'status-warning';
+                        break;
+                    case 'early':
+                        statusText = '早退';
+                        statusClass = 'status-warning';
+                        break;
+                    case 'absent':
+                        statusText = '缺勤';
+                        statusClass = 'status-danger';
+                        break;
+                    default:
+                        statusText = '正常';
+                        statusClass = 'status-success';
+                }
+                
+                row.innerHTML = `
+                    <td>${record.date}</td>
+                    <td>${record.time}</td>
+                    <td><span class="record-status ${statusClass}">${statusText}</span></td>
+                    <td>${record.location}</td>
+                    <td>${record.ip}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-outline btn-sm" onclick="viewRecord(${record.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="editRecord(${record.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function filterRecords() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            // 这里应该实现实际的筛选逻辑
+            // 暂时只是重新生成数据
+            generateAttendanceData();
+            
+            // 根据筛选条件过滤数据
+            let filteredData = [...attendanceData];
+            
+            if (startDate) {
+                filteredData = filteredData.filter(record => record.date >= startDate);
+            }
+            
+            if (endDate) {
+                filteredData = filteredData.filter(record => record.date <= endDate);
+            }
+            
+            if (statusFilter) {
+                filteredData = filteredData.filter(record => record.status === statusFilter);
+            }
+            
+            attendanceData = filteredData;
+            currentPageNumber = 1;
+            renderAttendanceTable();
+            updatePaginationInfo();
+        }
+
+        function resetFilters() {
+            document.getElementById('startDate').value = '2024-12-01';
+            document.getElementById('endDate').value = '2024-12-17';
+            document.getElementById('statusFilter').value = '';
+            
+            generateAttendanceData();
+            currentPageNumber = 1;
+            renderAttendanceTable();
+            updatePaginationInfo();
+        }
+
+        function prevPage() {
+            if (currentPageNumber > 1) {
+                currentPageNumber--;
+                renderAttendanceTable();
+                updatePaginationInfo();
             }
         }
 
-        // ===== 模态框 =====
+        function nextPage() {
+            const totalPages = Math.ceil(attendanceData.length / itemsPerPage);
+            if (currentPageNumber < totalPages) {
+                currentPageNumber++;
+                renderAttendanceTable();
+                updatePaginationInfo();
+            }
+        }
+
+        function updatePaginationInfo() {
+            const totalPages = Math.ceil(attendanceData.length / itemsPerPage);
+            document.getElementById('pageInfo').textContent = `第${currentPageNumber}页，共${totalPages}页`;
+        }
+
+        function exportRecords() {
+            alert('数据已导出为Excel文件！');
+            // 实际应用中这里应该生成并下载文件
+        }
+
+        function viewRecord(id) {
+            const record = attendanceData.find(r => r.id === id);
+            if (record) {
+                alert(`记录详情：\n日期：${record.date}\n时间：${record.time}\n地点：${record.location}\nIP：${record.ip}`);
+            }
+        }
+
+        function editRecord(id) {
+            alert('编辑功能开发中...');
+        }
+
+        // ===== 统计页面 =====
+        function updateStatistics() {
+            const period = document.getElementById('statPeriod').value;
+            let total, average, rate, best;
+            
+            switch(period) {
+                case 'month':
+                    total = '15';
+                    average = '08:12';
+                    rate = '94.7%';
+                    best = '5';
+                    break;
+                case 'week':
+                    total = '5';
+                    average = '08:15';
+                    rate = '100%';
+                    best = '5';
+                    break;
+                case 'year':
+                    total = '128';
+                    average = '08:14';
+                    rate = '93.2%';
+                    best = '12';
+                    break;
+                default:
+                    total = '15';
+                    average = '08:12';
+                    rate = '94.7%';
+                    best = '5';
+            }
+            
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statAverage').textContent = average;
+            document.getElementById('statRate').textContent = rate;
+            document.getElementById('statBest').textContent = best;
+        }
+
+        function initCharts() {
+            // 趋势图
+            const trendCtx = document.getElementById('trendCanvas').getContext('2d');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['12-10', '12-11', '12-12', '12-13', '12-14', '12-15', '12-16'],
+                    datasets: [{
+                        label: '签到时间',
+                        data: [8.1, 8.2, 8.05, 8.3, 8.15, 8.2, 8.14],
+                        borderColor: '#4361ee',
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 7.5,
+                            max: 8.5,
+                            ticks: {
+                                callback: function(value) {
+                                    const hour = Math.floor(value);
+                                    const minute = Math.round((value - hour) * 60);
+                                    return `${hour}:${minute.toString().padStart(2, '0')}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 状态分布图
+            const statusCtx = document.getElementById('statusCanvas').getContext('2d');
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['正常', '迟到', '早退', '缺勤'],
+                    datasets: [{
+                        data: [85, 10, 3, 2],
+                        backgroundColor: [
+                            '#4CAF50',
+                            '#FF9800',
+                            '#2196F3',
+                            '#F44336'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // ===== 个人中心 =====
+        function saveProfile() {
+            const name = document.getElementById('editName').value;
+            const email = document.getElementById('editEmail').value;
+            const phone = document.getElementById('editPhone').value;
+            const userClass = document.getElementById('editClass').value;
+            
+            // 保存到localStorage
+            localStorage.setItem('userName', name);
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userPhone', phone);
+            localStorage.setItem('userClass', userClass);
+            
+            // 更新显示
+            loadProfileData();
+            loadUserData();
+            
+            alert('个人信息已保存！');
+        }
+
+        function changePassword() {
+            showModal('changePasswordModal');
+        }
+
+        function updatePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                alert('请填写所有密码字段');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('两次输入的新密码不一致');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                alert('新密码长度至少为6位');
+                return;
+            }
+            
+            // 模拟密码修改
+            setTimeout(() => {
+                closeModal('changePasswordModal');
+                alert('密码修改成功！');
+                
+                // 清空表单
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+            }, 1000);
+        }
+
+        function changeAvatar() {
+            alert('头像修改功能开发中...');
+        }
+
+        function manageDevices() {
+            alert('设备管理功能开发中...');
+        }
+
+        function privacySettings() {
+            alert('隐私设置功能开发中...');
+        }
+
+        function notificationSettings() {
+            alert('通知设置功能开发中...');
+        }
+
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                localStorage.removeItem('isLoggedIn');
+                showPage('homePage');
+                alert('已成功退出登录！');
+            }
+        }
+
+        // ===== 通用功能 =====
         function showModal(modalId) {
             document.getElementById(modalId).classList.add('active');
         }
 
-        function hideModal(modalId) {
+        function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
         }
 
-        // ===== 工具函数 =====
         function showLoading() {
-            // 在实际应用中可以显示加载动画
+            // 这里可以添加加载动画
+            console.log('显示加载动画...');
         }
 
         function hideLoading() {
-            // 在实际应用中可以隐藏加载动画
+            // 这里可以隐藏加载动画
+            console.log('隐藏加载动画...');
         }
 
         function showTerms() {
-            alert('用户协议\n\n1. 本系统为演示版本\n2. 数据保存在本地浏览器\n3. 请勿用于生产环境\n4. 仅供学习和演示使用');
+            alert('用户协议内容...\n\n1. 用户须遵守国家法律法规\n2. 不得利用系统进行非法活动\n3. 保护个人账号安全\n4. 其他相关条款...');
         }
 
-        function startTimeUpdate() {
-            // 每秒更新时间
-            setInterval(updateDateTime, 1000);
+        function showPrivacy() {
+            alert('隐私政策内容...\n\n1. 我们如何收集和使用您的信息\n2. 我们如何保护您的信息\n3. 您的权利\n4. 隐私政策的变更...');
+        }
+
+        function generateRecentRecords() {
+            // 为仪表板生成最近记录
+            const recordsList = document.querySelector('.records-list');
+            if (!recordsList) return;
             
-            // 每分钟更新问候语
-            setInterval(updateGreeting, 60000);
+            // 如果已经有记录，就跳过
+            if (recordsList.children.length > 0) return;
         }
 
         // ===== 初始化 =====
         document.addEventListener('DOMContentLoaded', function() {
-            // 加载本地数据
-            loadFromLocalStorage();
+            // 初始化数据
+            generateAttendanceData();
             
-            // 初始化用户显示
-            document.getElementById('userInfo').textContent = userData.name;
-            document.getElementById('profileName').textContent = userData.name;
-            document.getElementById('demoUser').textContent = userData.name;
-            
-            // 初始时间显示
-            updateDateTime();
-            updateGreeting();
-            
-            // 检查当前URL参数
-            const urlParams = new URLSearchParams(window.location.search);
-            const page = urlParams.get('page');
-            if (page && document.getElementById(page)) {
-                showPage(page);
+            // 检查登录状态
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (isLoggedIn && window.location.hash !== '#logout') {
+                showPage('dashboardPage');
             }
             
-            // 添加分享功能提示
-            console.log('✅ 签到系统已加载完成！');
-            console.log('📋 分享链接：' + window.location.href);
-            console.log('💡 系统特点：');
-            console.log('   - 纯前端实现，无需服务器');
-            console.log('   - 数据保存在浏览器本地');
-            console.log('   - 可在任何设备上访问');
-            console.log('   - 支持导出数据');
+            // 更新日期时间
+            updateDateTime();
             
-            // 添加页面卸载前的保存提示
-            window.addEventListener('beforeunload', function() {
-                saveToLocalStorage();
-            });
+            // 检查今日签到状态
+            checkTodayAttendance();
+            
+            // 更新连续签到天数
+            updateContinuousDays();
+            
+            // 更新统计数据
+            loadStatistics();
         });
 
-        // 点击模态框外部关闭
-        window.addEventListener('click', function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.classList.remove('active');
-            }
-        });
+        // 点击页面外部关闭模态框
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        };
     </script>
 </body>
 </html>
